@@ -1,6 +1,6 @@
 import uvicorn
 import spacy
-from typing import Union
+from typing import Union, List
 from pattern.text.en import singularize
 from autocorrect import Speller
 
@@ -12,13 +12,14 @@ app = FastAPI(title="Information Extraction", version="1.0", description="Testin
 
 NLP = spacy.load("./models/output/model-best")
 
-
-class Item(BaseModel):
+class Request(BaseModel):
     paragraph: Union[str, None] = None
 
+class ResponseInfoExtractor(BaseModel):
+    profession: List[str] = None
 
-# TODO: response model
-
+class ResposeCorrector(BaseModel):
+    correct: Union[str, None] = None
 
 @app.get("/")
 def read_home():
@@ -29,7 +30,7 @@ def read_home():
 
 
 @app.post("/information-extractor")
-def predict(item: Item):
+def predict(item: Request):
     data_dict = item.dict()
     para = data_dict["paragraph"]
     doc = NLP(para)
@@ -40,16 +41,16 @@ def predict(item: Item):
         if entity.text.capitalize() not in prof
     ]
     res = [singularize(plural) for plural in prof]
-    return {"profession": res}
+    return ResponseInfoExtractor(profession=res)
 
 
 @app.post("/spellcorrector")
-def correction(item: Item):
+def correction(item: Request):
     data_dict = item.dict()
     para = data_dict["paragraph"]
     spell = Speller()
     correct = spell(para)
-    return {"corrected sentence": correct}
+    return ResposeCorrector(correct=correct)
 
 
 if __name__ == "__main__":
