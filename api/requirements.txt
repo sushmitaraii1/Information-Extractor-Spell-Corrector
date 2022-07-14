@@ -1,0 +1,7 @@
+fastapi==0.78.0
+Pattern==3.6
+pydantic==1.9.1
+spacy==3.4.0
+uvicorn==0.18.2
+nltk==3.7
+autocorrect==2.6.1
